@@ -6,26 +6,9 @@ import (
 	"testing"
 )
 
-func TestHome(t *testing.T) {
-	req,err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(Home)
-
-	handler.ServeHTTP(rr,req)
-
-	// Test status code
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Error: status code expected %v got %v", http.StatusOK, rr.Code)
-	}
-}
-
 func TestStatus(t *testing.T) {
 	// Prepare route to test
-	req,err := http.NewRequest("GET", "/status", nil)
+	req,err := http.NewRequest("GET", "/api/v1/status", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -36,14 +19,75 @@ func TestStatus(t *testing.T) {
 
 	handler.ServeHTTP(rr,req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("Error: status code got %v want %v", status, http.StatusOK)
-	}
-
 	// Test response body
 	expected := `{"status":"ok"}`
 	if rr.Body.String() != expected {
 		t.Errorf("Error: expected %v got %v", expected, rr.Body.String())
 	}
-	
+
+}
+
+func TestMigrations(t *testing.T) {
+	req,err := http.NewRequest("GET", "/api/v1/migrations",nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(Migrations)
+	handler.ServeHTTP(rr,req)
+
+	expected := `[]`
+	if rr.Body.String() != expected {
+		t.Errorf("Error: expected %v got %v", expected, rr.Body.String())
+	}
+}
+
+func TestHandlersStatusCode(t *testing.T){
+	tests := []struct{
+		Name string
+		Path string
+		Method string
+		Status int
+		HandlerF func(w http.ResponseWriter, req *http.Request)
+	}{
+		{
+			Name:   "Home",
+			Path:   "/",
+			Method: "GET",
+			Status: http.StatusOK,
+			HandlerF: Home,
+		},
+		{
+			Name:   "Status",
+			Path:   "/api/v1/status",
+			Method: "GET",
+			Status: http.StatusOK,
+			HandlerF: Status,
+		},
+		{
+			Name:   "Migrations",
+			Path:   "/api/v1/migrations",
+			Method: "GET",
+			Status: http.StatusOK,
+			HandlerF: Migrations,
+		},
+	}
+
+	for _,tt := range tests {
+		t.Run(tt.Name, func(t *testing.T) {
+			req,err := http.NewRequest(tt.Method, tt.Path, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			rr := httptest.NewRecorder()
+			handler := http.HandlerFunc(tt.HandlerF)
+			handler.ServeHTTP(rr,req)
+
+			if status := rr.Code; status != http.StatusOK {
+				t.Errorf("Error: expected %v got %v", http.StatusOK, rr.Code)
+			}
+		})
+	}
 }
