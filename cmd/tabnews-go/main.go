@@ -7,9 +7,10 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/", server.Home)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", server.Home)
+	mux.HandleFunc("/status", server.Status)
 
-	log.Println("Starting web server...")
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Server listing :8080....")
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
