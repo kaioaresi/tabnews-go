@@ -7,19 +7,29 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func Ping() (*sql.DB, error) {
+type DBConfig struct {
+	Client *sql.DB
+}
+
+func NewDBClient() *DBConfig {
 	db, err := sql.Open("postgres", "postgres://local_user:pwddb123@localhost:5432/tabnews?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
 
-	err = db.Ping()
+	return &DBConfig{
+		Client: db,
+	}
+}
+
+func (c *DBConfig) Ping() error {
+
+	err := c.Client.Ping()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	log.Println("Database connection ok!")
 
-	return db, err
+	return nil
 }

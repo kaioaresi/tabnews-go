@@ -9,10 +9,15 @@ import (
 	"tabnews-go/pkg/db"
 )
 
-type ServerConfig struct{}
+type ServerConfig struct {
+	dbClient db.DBConfig
+}
 
 func NewServerConfig() *ServerConfig {
-	return &ServerConfig{}
+
+	return &ServerConfig{
+		dbClient: *db.NewDBClient(),
+	}
 }
 
 func (s ServerConfig) Home(w http.ResponseWriter, req *http.Request) {
@@ -23,11 +28,11 @@ func (s ServerConfig) Home(w http.ResponseWriter, req *http.Request) {
 func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 
-	_, err := db.Ping()
+	err := s.dbClient.Ping()
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"status": "error", "mensage": "error on check db!"})
+		json.NewEncoder(w).Encode(map[string]string{"status": "error", "mensage": "Database error"})
 		return
 	}
 
