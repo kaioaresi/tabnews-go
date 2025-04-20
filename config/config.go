@@ -27,7 +27,7 @@ func NewConfig() (*DBCredentials, error) {
 
 func LoadEnviroments(path string) (*DBCredentials, error) {
 	viper.AddConfigPath(path)
-	viper.SetConfigFile(".env")
+	viper.SetConfigFile(".env.development")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
