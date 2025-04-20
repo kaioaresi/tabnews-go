@@ -9,12 +9,18 @@ import (
 	"tabnews-go/pkg/db"
 )
 
-func Home(w http.ResponseWriter, req *http.Request) {
+type ServerConfig struct{}
+
+func NewServerConfig() *ServerConfig {
+	return &ServerConfig{}
+}
+
+func (s ServerConfig) Home(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintln(w, "Home page!")
 }
 
-func Status(w http.ResponseWriter, req *http.Request) {
+func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 
 	_, err := db.Ping()
@@ -30,7 +36,7 @@ func Status(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func Migrations(w http.ResponseWriter, req *http.Request) {
+func (s ServerConfig) Migrations(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 
 	w.WriteHeader(http.StatusOK)
