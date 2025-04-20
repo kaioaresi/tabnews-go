@@ -17,4 +17,5 @@ func main() {
 
 	log.Println("Server listing :8080....")
 	log.Fatal(http.ListenAndServe(":8080", mux))
+
 }
