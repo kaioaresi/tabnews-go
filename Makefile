@@ -19,3 +19,9 @@ coverage:
 
 build: download
 	go build ./cmd/$(PROJECT_NAME)
+
+infra-up:
+	docker-compose -f infra/compose.yaml up -d
+
+infra-down:
+	docker-compose -f infra/compose.yaml down

@@ -28,7 +28,7 @@ func (s ServerConfig) Home(w http.ResponseWriter, req *http.Request) {
 func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 
-	err := s.dbClient.Ping()
+	dbInfos, err := s.dbClient.GetDBInfos()
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -37,7 +37,13 @@ func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	io.WriteString(w, `{"status":"ok", "db_version":"1.1.1"}`)
+	err = json.NewEncoder(w).Encode(dbInfos)
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"status": "error", "mensage": "error encode"})
+		return
+	}
 
 }
 
