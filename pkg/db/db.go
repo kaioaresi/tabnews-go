@@ -20,7 +20,7 @@ type DBConfig struct {
 
 type DbInfo struct {
 	Version            float32 `json:"version"`
-	MaxConnetions      int     `json:"max_connections"`
+	MaxConnections     int     `json:"max_connections"`
 	CurrentConnections int     `json:"current_connections"`
 	Status             bool    `json:"status"`
 }
@@ -29,7 +29,7 @@ func NewDBClient() (*DBConfig, error) {
 	db, err := sql.Open("postgres", dbCredentials)
 	if err != nil {
 		log.Println(err)
-		return nil, fmt.Errorf("Error failed to connect on database!")
+		return nil, fmt.Errorf("Error failed to connect on database - %v", err)
 	}
 
 	return &DBConfig{
@@ -58,7 +58,7 @@ func (c *DBConfig) getVersion() (float32, error) {
 	return version, nil
 }
 
-func (c *DBConfig) maxConnetions() (int, error) {
+func (c *DBConfig) maxConnections() (int, error) {
 	var maxConn int
 	err := c.Client.QueryRow("show max_connections;").Scan(&maxConn)
 	if err != nil {
@@ -97,7 +97,7 @@ func (c *DBConfig) GetDBInfos() (*DbInfo, error) {
 		return nil, err
 	}
 
-	maxConns, err := c.maxConnetions()
+	maxConns, err := c.maxConnections()
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (c *DBConfig) GetDBInfos() (*DbInfo, error) {
 
 	return &DbInfo{
 		Version:            version,
-		MaxConnetions:      maxConns,
+		MaxConnections:     maxConns,
 		CurrentConnections: currenConns,
 		Status:             true,
 	}, nil

@@ -10,12 +10,13 @@ import (
 func TestHandlersStatusCode(t *testing.T) {
 	db, err := db.NewDBClient()
 	if err != nil {
-		t.Errorf("Error to db connection")
+		t.Errorf("Error db connection %v", err)
 	}
+	defer db.Close()
 
 	serverConfigClient, err := NewServerConfig(db)
 	if err != nil {
-		t.Errorf("Error server")
+		t.Errorf("Error server %v", err)
 	}
 
 	tests := []struct {
@@ -52,15 +53,15 @@ func TestHandlersStatusCode(t *testing.T) {
 		t.Run(tt.Name, func(t *testing.T) {
 			req, err := http.NewRequest(tt.Method, tt.Path, nil)
 			if err != nil {
-				t.Fatal(err)
+				t.Fatalf("Error to create request %v", err)
 			}
 
 			rr := httptest.NewRecorder()
 			handler := http.HandlerFunc(tt.HandlerF)
 			handler.ServeHTTP(rr, req)
 
-			if status := rr.Code; status != http.StatusOK {
-				t.Errorf("Error: expected %v got %v", http.StatusOK, rr.Code)
+			if status := rr.Code; status != tt.Status {
+				t.Errorf("Test %s - error: expected %v got %v", tt.Name, tt.Status, rr.Code)
 			}
 		})
 	}

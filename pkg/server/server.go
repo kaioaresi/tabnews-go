@@ -5,10 +5,21 @@ import (
 	"log"
 	"net/http"
 	"tabnews-go/pkg/db"
+	"time"
+)
+
+const (
+	contentTypeHeader = "Content-type"
+	applicationJson   = "application/json"
 )
 
 type ServerConfig struct {
-	dbInfos *db.DbInfo
+	UpdateAt     time.Time          `json:"update_at"`
+	Dependencies DependenciesStatus `json:"dependencies"`
+}
+
+type DependenciesStatus struct {
+	Database *db.DbInfo `json:"database"`
 }
 
 func NewServerConfig(dbInfos db.DBAccess) (*ServerConfig, error) {
@@ -19,7 +30,10 @@ func NewServerConfig(dbInfos db.DBAccess) (*ServerConfig, error) {
 	}
 
 	return &ServerConfig{
-		dbInfos: infosDB,
+		UpdateAt: time.Now(),
+		Dependencies: DependenciesStatus{
+			Database: infosDB,
+		},
 	}, nil
 }
 
@@ -29,12 +43,12 @@ func (s ServerConfig) Home(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-type", "application/json")
-
+	w.Header().Set(contentTypeHeader, applicationJson)
 	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(s.dbInfos)
+
+	err := json.NewEncoder(w).Encode(s)
 	if err != nil {
-		log.Println(err.Error())
+		log.Printf("Error encoding error message in Status endpoint %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "error encode"})
 		return
@@ -42,6 +56,6 @@ func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s ServerConfig) Migrations(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-type", "application/json")
+	w.Header().Set(contentTypeHeader, applicationJson)
 	w.Write([]byte("Migrations page"))
 }
