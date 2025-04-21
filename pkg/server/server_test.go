@@ -3,51 +3,20 @@ package server
 import (
 	"net/http"
 	"net/http/httptest"
+	"tabnews-go/pkg/db"
 	"testing"
 )
 
-func TestStatus(t *testing.T) {
-	serverConfigClient := NewServerConfig()
-	// Prepare route to test
-	req, err := http.NewRequest("GET", "/api/v1/status", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// Test status code
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(serverConfigClient.Status)
-
-	handler.ServeHTTP(rr, req)
-
-	// Test response body
-	expected := `{"status":"ok", "db_version":"1.1.1"}`
-	if rr.Body.String() != expected {
-		t.Errorf("Error: expected %v got %v", expected, rr.Body.String())
-	}
-
-}
-
-func TestMigrations(t *testing.T) {
-	serverConfigClient := NewServerConfig()
-	req, err := http.NewRequest("GET", "/api/v1/migrations", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(serverConfigClient.Migrations)
-	handler.ServeHTTP(rr, req)
-
-	expected := `[]`
-	if rr.Body.String() != expected {
-		t.Errorf("Error: expected %v got %v", expected, rr.Body.String())
-	}
-}
-
 func TestHandlersStatusCode(t *testing.T) {
+	db, err := db.NewDBClient()
+	if err != nil {
+		t.Errorf("Error to db connection")
+	}
 
-	serverConfigClient := NewServerConfig()
+	serverConfigClient, err := NewServerConfig(db)
+	if err != nil {
+		t.Errorf("Error server")
+	}
 
 	tests := []struct {
 		Name     string

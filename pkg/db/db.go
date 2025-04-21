@@ -28,7 +28,8 @@ type DbInfo struct {
 func NewDBClient() (*DBConfig, error) {
 	db, err := sql.Open("postgres", dbCredentials)
 	if err != nil {
-		return nil, fmt.Errorf("Error failed to connect on database", err)
+		log.Println(err)
+		return nil, fmt.Errorf("Error failed to connect on database!")
 	}
 
 	return &DBConfig{
