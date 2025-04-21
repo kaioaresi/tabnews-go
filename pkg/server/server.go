@@ -2,54 +2,46 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"tabnews-go/pkg/db"
 )
 
 type ServerConfig struct {
-	dbClient db.DBConfig
+	dbInfos *db.DbInfo
 }
 
-func NewServerConfig() *ServerConfig {
+func NewServerConfig(dbInfos db.DBAccess) (*ServerConfig, error) {
+
+	infosDB, err := dbInfos.GetDBInfos()
+	if err != nil {
+		return nil, err
+	}
 
 	return &ServerConfig{
-		dbClient: *db.NewDBClient(),
-	}
+		dbInfos: infosDB,
+	}, nil
 }
 
 func (s ServerConfig) Home(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "Home page!")
+	w.Write([]byte("Home tabnews"))
 }
 
 func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
 
-	dbInfos, err := s.dbClient.GetDBInfos()
-	if err != nil {
-		log.Println(err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"status": "error", "mensage": "Database error"})
-		return
-	}
-
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(dbInfos)
+	err := json.NewEncoder(w).Encode(s.dbInfos)
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"status": "error", "mensage": "error encode"})
+		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "error encode"})
 		return
 	}
-
 }
 
 func (s ServerConfig) Migrations(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-type", "application/json")
-
-	w.WriteHeader(http.StatusOK)
-	io.WriteString(w, `[]`)
+	w.Write([]byte("Migrations page"))
 }

@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -9,26 +10,30 @@ import (
 
 const dbCredentials = "postgres://local_user:pwddb123@localhost:5432/tabnews?sslmode=disable"
 
+type DBAccess interface {
+	GetDBInfos() (*DbInfo, error)
+}
+
 type DBConfig struct {
 	Client *sql.DB
 }
 
-type dbInfo struct {
+type DbInfo struct {
 	Version            float32 `json:"version"`
-	MaxConnetions      int     `json:"maxconnections"`
-	CurrentConnections int     `json:"currentconnections"`
+	MaxConnetions      int     `json:"max_connections"`
+	CurrentConnections int     `json:"current_connections"`
 	Status             bool    `json:"status"`
 }
 
-func NewDBClient() *DBConfig {
+func NewDBClient() (*DBConfig, error) {
 	db, err := sql.Open("postgres", dbCredentials)
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("Error failed to connect on database", err)
 	}
 
 	return &DBConfig{
 		Client: db,
-	}
+	}, nil
 }
 
 func (c *DBConfig) Ping() error {
@@ -42,7 +47,7 @@ func (c *DBConfig) Ping() error {
 	return nil
 }
 
-func (c *DBConfig) GetVersion() (float32, error) {
+func (c *DBConfig) getVersion() (float32, error) {
 	var version float32
 	err := c.Client.QueryRow("SHOW server_version;").Scan(&version)
 	if err != nil {
@@ -52,24 +57,24 @@ func (c *DBConfig) GetVersion() (float32, error) {
 	return version, nil
 }
 
-func (c *DBConfig) MaxConnetions() (int, error) {
-	var MaxConnetions int
-	err := c.Client.QueryRow("show max_connections;").Scan(&MaxConnetions)
+func (c *DBConfig) maxConnetions() (int, error) {
+	var maxConn int
+	err := c.Client.QueryRow("show max_connections;").Scan(&maxConn)
 	if err != nil {
 		return 0, err
 	}
 
-	return MaxConnetions, nil
+	return maxConn, nil
 }
 
-func (c *DBConfig) CurrentConnections() (int, error) {
-	var CurrentConnections int
-	err := c.Client.QueryRow("SELECT count(*)::int FROM pg_stat_activity WHERE datname = 'tabnews';").Scan(&CurrentConnections)
+func (c *DBConfig) currentConnections() (int, error) {
+	var currentConnections int
+	err := c.Client.QueryRow("SELECT count(*)::int FROM pg_stat_activity WHERE datname = 'tabnews';").Scan(&currentConnections)
 	if err != nil {
 		return 0, err
 	}
 
-	return CurrentConnections, nil
+	return currentConnections, nil
 }
 
 func (c *DBConfig) Close() error {
@@ -80,18 +85,18 @@ func (c *DBConfig) Close() error {
 	return nil
 }
 
-func (c *DBConfig) GetDBInfos() (*dbInfo, error) {
-	version, err := c.GetVersion()
+func (c *DBConfig) GetDBInfos() (*DbInfo, error) {
+	version, err := c.getVersion()
 	if err != nil {
 		return nil, err
 	}
 
-	currenConnections, err := c.CurrentConnections()
+	currenConns, err := c.currentConnections()
 	if err != nil {
 		return nil, err
 	}
 
-	maxConnetions, err := c.MaxConnetions()
+	maxConns, err := c.maxConnetions()
 	if err != nil {
 		return nil, err
 	}
@@ -101,10 +106,10 @@ func (c *DBConfig) GetDBInfos() (*dbInfo, error) {
 		return nil, err
 	}
 
-	return &dbInfo{
+	return &DbInfo{
 		Version:            version,
-		MaxConnetions:      maxConnetions,
-		CurrentConnections: currenConnections,
+		MaxConnetions:      maxConns,
+		CurrentConnections: currenConns,
 		Status:             true,
 	}, nil
 }
