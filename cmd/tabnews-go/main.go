@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"tabnews-go/internal/logger"
 	"tabnews-go/pkg/db"
 	"tabnews-go/pkg/server"
 )
@@ -10,23 +11,27 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
+	logger, err := logger.NewLogger()
+	if err != nil {
+		log.Fatal("Failed to create logger", err)
+	}
+
 	db, err := db.NewDBClient()
 	if err != nil {
-		log.Fatal(err)
+		logger.Error(err)
 	}
+	defer db.Close()
 
 	serverConfig, err := server.NewServerConfig(db)
 	if err != nil {
-		log.Fatal(err)
+		logger.Error(err)
 	}
-
-	db.Close()
 
 	mux.HandleFunc("/", serverConfig.Home)
 	mux.HandleFunc("/api/v1/status", serverConfig.Status)
 	mux.HandleFunc("/api/v1/migrations", serverConfig.Migrations)
 
-	log.Println("Server listing :8080....")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	logger.Infof("Server listing :8080....")
+	logger.Error(http.ListenAndServe(":8080", mux))
 
 }

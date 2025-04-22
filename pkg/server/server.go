@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"tabnews-go/internal/logger"
 	"tabnews-go/pkg/db"
 	"time"
 )
@@ -16,6 +17,7 @@ const (
 type ServerConfig struct {
 	UpdateAt     time.Time          `json:"update_at"`
 	Dependencies DependenciesStatus `json:"dependencies"`
+	logger       *logger.Logger
 }
 
 type DependenciesStatus struct {
@@ -24,6 +26,11 @@ type DependenciesStatus struct {
 
 func NewServerConfig(dbInfos db.DBAccess) (*ServerConfig, error) {
 
+	lg, err := logger.NewLogger()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	infosDB, err := dbInfos.GetDBInfos()
 	if err != nil {
 		return nil, err
@@ -31,6 +38,7 @@ func NewServerConfig(dbInfos db.DBAccess) (*ServerConfig, error) {
 
 	return &ServerConfig{
 		UpdateAt: time.Now(),
+		logger:   lg,
 		Dependencies: DependenciesStatus{
 			Database: infosDB,
 		},
@@ -48,7 +56,7 @@ func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 
 	err := json.NewEncoder(w).Encode(s)
 	if err != nil {
-		log.Printf("Error encoding error message in Status endpoint %v", err)
+		s.logger.Errorf("Error encoding error message in Status endpoint", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "error encode"})
 		return
