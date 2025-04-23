@@ -38,6 +38,12 @@ func NewDBClient() (*DBConfig, error) {
 		return nil, err
 	}
 
+	err = db.Ping()
+	if err != nil {
+		lg.Errorf("Failed connect database!", err)
+		return nil, err
+	}
+
 	return &DBConfig{
 		Client: db,
 		Logger: lg,
@@ -101,7 +107,7 @@ func (c *DBConfig) GetDBInfos() (*DbInfo, error) {
 		return nil, err
 	}
 
-	currenConns, err := c.currentConnections()
+	currentConns, err := c.currentConnections()
 	if err != nil {
 		return nil, err
 	}
@@ -111,17 +117,12 @@ func (c *DBConfig) GetDBInfos() (*DbInfo, error) {
 		return nil, err
 	}
 
-	err = c.Ping()
-	if err != nil {
-		return nil, err
-	}
-
 	defer c.Close()
 
 	return &DbInfo{
 		Version:            version,
 		MaxConnections:     maxConns,
-		CurrentConnections: currenConns,
+		CurrentConnections: currentConns,
 		Status:             true,
 	}, nil
 }
