@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+	"tabnews-go/internal/db"
 	"tabnews-go/internal/logger"
-	"tabnews-go/pkg/db"
 	"tabnews-go/pkg/server"
 )
 

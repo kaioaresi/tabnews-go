@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"tabnews-go/internal/db"
 	"tabnews-go/internal/logger"
-	"tabnews-go/pkg/db"
 	"time"
 )
 

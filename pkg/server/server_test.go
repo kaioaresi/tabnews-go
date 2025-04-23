@@ -3,7 +3,7 @@ package server
 import (
 	"net/http"
 	"net/http/httptest"
-	"tabnews-go/pkg/db"
+	"tabnews-go/internal/db"
 	"testing"
 )
 
