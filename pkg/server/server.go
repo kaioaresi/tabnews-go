@@ -2,10 +2,9 @@ package server
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
-	"tabnews-go/internal/db"
-	"tabnews-go/internal/logger"
+	"tabnews-go/pkg/db"
+	"tabnews-go/pkg/logger"
 	"time"
 )
 
@@ -17,20 +16,14 @@ const (
 type ServerConfig struct {
 	UpdateAt     time.Time          `json:"update_at"`
 	Dependencies DependenciesStatus `json:"dependencies"`
-	logger       *logger.Logger
+	logger       logger.LogFormat
 }
 
 type DependenciesStatus struct {
 	Database *db.DbInfo `json:"database"`
 }
 
-func NewServerConfig(dbInfos db.DBAccess) (*ServerConfig, error) {
-
-	lg, err := logger.NewLogger()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func NewServerConfig(dbInfos db.DBAccess, lg logger.LogFormat) (*ServerConfig, error) {
 	infosDB, err := dbInfos.GetDBInfos()
 	if err != nil {
 		return nil, err

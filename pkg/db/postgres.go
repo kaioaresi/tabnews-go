@@ -2,20 +2,16 @@ package db
 
 import (
 	"database/sql"
-	"tabnews-go/internal/logger"
+	"tabnews-go/pkg/logger"
 
 	_ "github.com/lib/pq"
 )
 
 const dbCredentials = "postgres://local_user:pwddb123@localhost:5432/tabnews?sslmode=disable"
 
-type DBAccess interface {
-	GetDBInfos() (*DbInfo, error)
-}
-
 type DBConfig struct {
 	Client *sql.DB
-	Logger *logger.Logger
+	Logger logger.LogFormat
 }
 
 type DbInfo struct {
@@ -25,13 +21,7 @@ type DbInfo struct {
 	Status             bool    `json:"status"`
 }
 
-func NewDBClient() (*DBConfig, error) {
-	lg, err := logger.NewLogger()
-	if err != nil {
-		lg.Error(err)
-		return nil, err
-	}
-
+func NewDBClient(lg logger.LogFormat) (*DBConfig, error) {
 	db, err := sql.Open("postgres", dbCredentials)
 	if err != nil {
 		lg.Errorf("Error failed to connect on database", err)
@@ -57,7 +47,7 @@ func (c *DBConfig) Ping() error {
 		return err
 	}
 
-	c.Logger.Infof("Database connection ok!")
+	c.Logger.Info("Database connection ok!")
 
 	return nil
 }
@@ -68,7 +58,7 @@ func (c *DBConfig) getVersion() (float32, error) {
 	if err != nil {
 		return 0.0, err
 	}
-	c.Logger.Infof("Get version DB")
+	c.Logger.Info("Get version DB")
 	return version, nil
 }
 
@@ -78,7 +68,7 @@ func (c *DBConfig) maxConnections() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	c.Logger.Infof("Get max connections DB")
+	c.Logger.Info("Get max connections DB")
 	return maxConn, nil
 }
 
@@ -88,7 +78,7 @@ func (c *DBConfig) currentConnections() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	c.Logger.Infof("Get current connections DB")
+	c.Logger.Info("Get current connections DB")
 	return currentConnections, nil
 }
 
@@ -97,7 +87,7 @@ func (c *DBConfig) Close() error {
 		return err
 	}
 
-	c.Logger.Infof("Close connection DB!")
+	c.Logger.Info("Close connection DB!")
 	return nil
 }
 

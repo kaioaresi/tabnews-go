@@ -1,20 +1,27 @@
 package server
 
 import (
+	"log"
 	"net/http"
 	"net/http/httptest"
-	"tabnews-go/internal/db"
+	"tabnews-go/pkg/db"
+	"tabnews-go/pkg/logger"
 	"testing"
 )
 
 func TestHandlersStatusCode(t *testing.T) {
-	db, err := db.NewDBClient()
+	logger, err := logger.NewLogger()
+	if err != nil {
+		log.Fatal("Failed to create logger", err)
+	}
+
+	db, err := db.NewDBClient(logger)
 	if err != nil {
 		t.Errorf("Error db connection %v", err)
 	}
 	defer db.Close()
 
-	serverConfigClient, err := NewServerConfig(db)
+	serverConfigClient, err := NewServerConfig(db, logger)
 	if err != nil {
 		t.Errorf("Error server %v", err)
 	}
