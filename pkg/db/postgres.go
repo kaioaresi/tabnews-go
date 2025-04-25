@@ -7,8 +7,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const dbCredentials = "postgres://local_user:pwddb123@localhost:5432/tabnews?sslmode=disable"
-
 type DBConfig struct {
 	Client *sql.DB
 	Logger logger.LogFormat
@@ -21,8 +19,8 @@ type DbInfo struct {
 	Status             bool    `json:"status"`
 }
 
-func NewDBClient(lg logger.LogFormat) (*DBConfig, error) {
-	db, err := sql.Open("postgres", dbCredentials)
+func NewDBClient(lg logger.LogFormat, stringDB string) (*DBConfig, error) {
+	db, err := sql.Open("postgres", stringDB)
 	if err != nil {
 		lg.Errorf("Error failed to connect on database", err)
 		return nil, err

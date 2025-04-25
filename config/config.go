@@ -8,6 +8,7 @@ import (
 )
 
 type DBCredentials struct {
+	Environment       string `mapstructure:"environment"`
 	POSTGRES_HOST     string `mapstructure:"POSTGRES_HOST"`
 	POSTGRES_PORT     string `mapstructure:"POSTGRES_PORT"`
 	POSTGRES_USER     string `mapstructure:"POSTGRES_USER"`
@@ -16,7 +17,7 @@ type DBCredentials struct {
 }
 
 func NewConfig() (*DBCredentials, error) {
-	creds, err := LoadEnviroments(".")
+	creds, err := LoadConfig()
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -25,9 +26,10 @@ func NewConfig() (*DBCredentials, error) {
 	return creds, nil
 }
 
-func LoadEnviroments(path string) (*DBCredentials, error) {
-	viper.AddConfigPath(path)
+func LoadConfig() (*DBCredentials, error) {
 	viper.SetConfigFile(".env.development")
+	viper.SetConfigType("env")
+	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
@@ -39,4 +41,8 @@ func LoadEnviroments(path string) (*DBCredentials, error) {
 	viper.Unmarshal(&creds)
 
 	return &creds, nil
+}
+
+func (d *DBCredentials) StringConnection() string {
+	return fmt.Sprintf("postgres://%v:%v@%v:%v/tabnews?sslmode=disable", d.POSTGRES_USER, d.POSTGRES_PASSWORD, d.POSTGRES_HOST, d.POSTGRES_PORT)
 }
