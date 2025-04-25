@@ -38,25 +38,14 @@ func NewDBClient(lg logger.LogFormat, stringDB string) (*DBConfig, error) {
 	}, nil
 }
 
-func (c *DBConfig) Ping() error {
-
-	err := c.Client.Ping()
-	if err != nil {
-		return err
-	}
-
-	c.Logger.Info("Database connection ok!")
-
-	return nil
-}
-
 func (c *DBConfig) getVersion() (float32, error) {
 	var version float32
 	err := c.Client.QueryRow("SHOW server_version;").Scan(&version)
 	if err != nil {
-		return 0.0, err
+		c.Logger.Errorf("no database version found", err)
+		return 0, err
 	}
-	c.Logger.Info("Get version DB")
+	c.Logger.Info("Database version")
 	return version, nil
 }
 

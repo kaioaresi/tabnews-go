@@ -43,7 +43,7 @@ func (s ServerConfig) Home(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("Home tabnews"))
 }
 
-func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
+func (s *ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set(contentTypeHeader, applicationJson)
 	w.WriteHeader(http.StatusOK)
 
@@ -56,7 +56,7 @@ func (s ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (s ServerConfig) Migrations(w http.ResponseWriter, req *http.Request) {
+func (s *ServerConfig) Migrations(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set(contentTypeHeader, applicationJson)
 	w.Write([]byte("Migrations page"))
 }

@@ -33,8 +33,10 @@ func LoadConfig() (*DBCredentials, error) {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal(err)
-		return nil, fmt.Errorf("Error to load environments from file: %v", err)
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			return nil, fmt.Errorf("error config file not found!: %v", err)
+		}
+		return nil, fmt.Errorf("error to load environments from file: %v", err)
 	}
 
 	var creds DBCredentials
