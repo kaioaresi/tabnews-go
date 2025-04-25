@@ -6,12 +6,10 @@ import (
 	"tabnews-go/config"
 	"tabnews-go/pkg/db"
 	"tabnews-go/pkg/logger"
-	"tabnews-go/pkg/server"
+	"tabnews-go/pkg/web"
 )
 
 func main() {
-	mux := http.NewServeMux()
-
 	config, err := config.NewConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -29,14 +27,10 @@ func main() {
 	}
 	defer db.Close()
 
-	serverConfig, err := server.NewServerConfig(db, logger)
+	mux, err := web.Routers(config, db)
 	if err != nil {
 		logger.Error(err)
 	}
-
-	mux.HandleFunc("/", serverConfig.Home)
-	mux.HandleFunc("/api/v1/status", serverConfig.Status)
-	mux.HandleFunc("/api/v1/migrations", serverConfig.Migrations)
 
 	logger.Info("Server listing :8080....")
 	logger.Error(http.ListenAndServe(":8080", mux))
