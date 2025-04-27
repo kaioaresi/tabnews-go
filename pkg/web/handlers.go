@@ -44,6 +44,7 @@ func (s ServerConfig) Home(w http.ResponseWriter, req *http.Request) {
 }
 
 func (s *ServerConfig) Status(w http.ResponseWriter, req *http.Request) {
+	s.UpdateAt = time.Now() // update time
 	w.Header().Set(contentTypeHeader, applicationJson)
 	w.WriteHeader(http.StatusOK)
 
