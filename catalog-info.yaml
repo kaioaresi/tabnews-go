@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tabnews-go
+  description: Recriando tabnews em golang
+  annotations:
+    github.com/project-slug: kaioaresi/tabnews-go
+  tags:
+    - golang
+    - web
+    - tabnews
+    - postgres
+    - viper
+    - zap
+spec:
+  type: service
+  owner: development
+  lifecycle: experimental
+ 
