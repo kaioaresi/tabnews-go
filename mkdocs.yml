@@ -1,0 +1,11 @@
+site_name: 'Tabnews Go'
+site_description: 'Main documentatio for tabnew-go'
+repo_url: https://github.com/kaioaresi/Tabnews-go
+edit_uri: edit/main/docs
+
+plugins:
+  - techdocs-core
+
+nav:
+  - Overview:
+      - Descrion of project: 'docs/index.md'

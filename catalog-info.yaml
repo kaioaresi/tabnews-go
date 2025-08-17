@@ -5,6 +5,7 @@ metadata:
   description: Recriando tabnews em golang
   annotations:
     github.com/project-slug: kaioaresi/tabnews-go
+    backstage.io/techdocs-ref: dir:. # link the docs
   tags:
     - golang
     - web
