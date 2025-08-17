@@ -11,5 +11,3 @@ plugins:
 nav:
   - Overview:
       - Descrion of project: 'index.md'
-
-
