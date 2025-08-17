@@ -1,4 +1,4 @@
-# TabNews-Go Documentation
+title: TabNews-Go Documentation
 
 ## 1. Introduction
 
