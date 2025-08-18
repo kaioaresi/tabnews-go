@@ -13,6 +13,8 @@ metadata:
     - postgres
     - viper
     - zap
+  links:
+    - url: https://aresicorp.com.br
 spec:
   type: service
   owner: development
