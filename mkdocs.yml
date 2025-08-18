@@ -11,7 +11,7 @@ plugins:
 nav:
   - Overview:
     - Descrion of project: 'index.md'
-  - Team a:
+  - Arquitetura:
     - Overview team a: 'team-a/team-a.md'
   - Team b:
     - Overview team b: 'team-b/team-b.md'
