@@ -1,0 +1,22 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: tabnews-go-db
+  description: Recriando tabnews em golang
+  annotations:
+    github.com/project-slug: kaioaresi/tabnews-go
+    backstage.io/techdocs-ref: url:https://github.com/kaioaresi/tabnews-go # link the docs
+  tags:
+    - golang
+    - web
+    - tabnews
+    - postgres
+    - viper
+    - zap
+  links:
+    - url: https://aresicorp.com.br
+spec:
+  type: service
+  owner: development
+  lifecycle: experimental
+ 
